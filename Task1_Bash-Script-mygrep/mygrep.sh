@@ -1,14 +1,23 @@
 #!/bin/bash
-#
-Argument_mode=$#
-FILE=$2
-Regex="^(.*)($1)(.*)$"
-RED="\e[31m"  
-ENDCOLOR="\e[0m"
-declare -a my_array
 
 
-mygrep_search() {
+
+check_file(){
+  FILE=$1
+  if [ ! -f "$FILE" ] || [ ! -s "$FILE" ]; then
+  echo "File $FILE does not exist or has no content."
+  exit 1
+  fi
+}
+check_missing_args() {
+  Argument_mode=$1  # Get the number of arguments passed to the function
+  if [ $Argument_mode -eq 0 ] || [ $Argument_mode -eq 1 ]; then
+    echo "Number of arguments provided is $Argument_mode. Please provide a search string and a file."
+    echo "Usage: $0 <search_string> [options_flags] <file_path>"
+    exit 1
+  fi
+}
+mygrep_simple_search() {
   while IFS= read -r line; do
     if [[ $line =~ $Regex ]]; then
       Starting_Half="${BASH_REMATCH[1]}"
@@ -19,7 +28,37 @@ mygrep_search() {
   done < "$FILE"
 }
 
-mygrep_search
+Argument_mode=$#
+FILE="${!#}"
+
+check_missing_args $Argument_mode
+check_file $FILE
+
+mygrep_simple_search() {
+  while IFS= read -r line; do
+    if [[ $line =~ $Regex ]]; then
+      Starting_Half="${BASH_REMATCH[1]}"
+      Matching_Half="${BASH_REMATCH[2]}"
+      Ending_Half="${BASH_REMATCH[3]}"
+      echo -e "${Starting_Half} ${RED}$Matching_Half${ENDCOLOR}$Ending_Half"
+    fi
+  done < "$FILE"
+}
+
+pattern=$(( $# - 1 ))
+echo "Pattern Argument is $pattern"
+# Regex="^(.*)($pattern)(.*)$"
+Regex="^(.*)($1)(.*)$"
+
+RED="\e[31m"  
+ENDCOLOR="\e[0m"
+
+
+
+
+
+
+mygrep_simple_search
 
 # FILE=$3
 
