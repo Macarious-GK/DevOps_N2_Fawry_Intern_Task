@@ -1,3 +1,4 @@
+# Q1 :Custom Command (mygrep.sh)
 ## Description
 This is a custom Bash implementation of a lightweight grep-like tool called `mygrep`.  
 It searches for a string pattern inside a file, supports optional flags like showing line numbers or inverted matching, and highlights matches in color.  
@@ -6,6 +7,25 @@ It also includes basic validation for file existence, correct argument count, an
 Additionally:
 - A script was created to test most of the scenarios for using this tool, automating the testing process when upgrading or modifying the code.
 - Improved option parsing using `getopts` for more robust and flexible flag handling.
+
+## 🧠 Reflective Section
+1.  A breakdown of how your script handles arguments and options.
+    - First, I checked the minimum number of arguments, which is 1, but then I expect at least 2 arguments: the search string and the file.
+    - I created a variable called `search_string`, an array called `flags`, and a variable called `FILE` to hold each part needed for the search process.
+    - I iterated through the arguments, aiming first to check that there is a `search_string` and making sure at the same time that it is not a file. Then I searched for a file. If both existed, I could start my search.
+    - Regarding options, I first had to split `-nv` or `-vn` into `-n` and `-v` to make it easier. Then, in my search logic, I started by checking if there is a `-v` flag so I could invert my search to match non-matching lines. I used the `=~` built-in regex in Bash to simplify the matching and then applied if-else conditions.
+    - A more optimized way would be activating only the triggered flags instead of using if/else. I might use a `case` statement instead.
+
+
+
+2. A short paragraph: If you were to support regex or -i/-c/-l options, how would your structure change?
+    - I would modify the `mygrep_flag_supported_search` function by handling each flag. I would use a different approach by relying more on `getopts` in my logic.
+    - Also, by default, the match was case-sensitive, so I had to modify it by converting both the text and the search pattern to lowercase.
+    - My approach of using the `=~` built-in regex makes supporting regex patterns or adding `-i`/`-c`/`-l` options really simple and straightforward.
+
+
+3. What part of the script was hardest to implement and why?
+    - Trying to cover every corner case, like missing arguments, and trying to mimic the real `grep` tool by adding color for the matching word, and deciding which approach to choose to handle the flags correctly.
 
 ## Features
 - Case-insensitive search.
