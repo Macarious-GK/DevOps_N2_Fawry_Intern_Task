@@ -9,33 +9,30 @@ check_file(){
 }
 check_missing_args() {
   Argument_mode=$1  # Get the number of arguments passed to the function
-  if [ $Argument_mode -eq 0 ] || [ $Argument_mode -eq 1 ]; then
+  if [ $Argument_mode -eq 0 ]; then
     echo "This tool expect 2 or more arguments. Please provide a search string, optional flags and a file."
-    echo "Usage: $0 <search_string> [options_flags] <file_path>"
+    echo "Usage: $0 [OPTION]... PATTERN [FILE]..."
+    echo "Try '$0 --help' for more information."
     exit 1
   fi
 }
+
 check_missing_search_string() {
   if [ -z "$search_string" ]; then
     echo "mygrep: No search string provided."
     exit 1
   fi
 }
-mygrep_simple_search() {
-  while IFS= read -r line; do
-    if [[ $line =~ $Regex ]]; then
-      Starting_Half="${BASH_REMATCH[1]}"
-      Matching_Half="${BASH_REMATCH[2]}"
-      Ending_Half="${BASH_REMATCH[3]}"
-      echo -e "${Starting_Half} ${RED}$Matching_Half${ENDCOLOR}$Ending_Half"
-    fi
-  done < "$FILE"
-}
+
 parse_args() {
   local found_search_string=false
   for arg in "$@"; do
     if [[ "$arg" == -* ]]; then
       flags+=("$arg")
+      if [[ "$arg" == --help ]] then
+        echo "$Help_message"
+        exit 0
+      fi
     elif [[ "$found_search_string" == false ]]; then
       if [ -f "$arg" ]; then
         check_file "$arg"
@@ -49,117 +46,129 @@ parse_args() {
   done
 }
 
+handle_flags() {
+  local new_flags=()
+
+  for flag in "${flags[@]}"; do
+    case $flag in
+      -v)
+        new_flags+=("-v")
+        ;;
+      -n)
+        new_flags+=("-n")
+        ;;
+      -nv | -vn)
+        new_flags+=("-n" "-v")
+        ;;
+      --help)
+        echo "$Help_message"
+        exit 0
+        ;;
+      *)
+        echo "Invalid option: $flag"
+        exit 1
+        ;;
+    esac
+  done
+
+  # Update the global flags array
+  flags=("${new_flags[@]}")
+}
+
+
+mygrep_simple_search() {
+  local Regex=$1
+  while IFS= read -r line; do
+    lower_line=$(echo "$line" | tr '[:upper:]' '[:lower:]')
+    lower_regex=$(echo "$Regex" | tr '[:upper:]' '[:lower:]')
+    if [[ $lower_line =~ $lower_regex ]]; then
+      Starting_Half="${BASH_REMATCH[1]}"
+      Matching_Half="${BASH_REMATCH[2]}"
+      Ending_Half="${BASH_REMATCH[3]}"
+      echo -e "${Starting_Half} ${RED}$Matching_Half${ENDCOLOR}$Ending_Half"
+    fi
+  done < "$FILE"
+}
+
+mygrep_flag_supported_search() {
+  local line_number=0
+  local Regex=$1
+
+  while IFS= read -r line; do
+    line_number=$((line_number + 1))
+    lower_line=$(echo "$line" | tr '[:upper:]' '[:lower:]')
+    lower_regex=$(echo "$Regex" | tr '[:upper:]' '[:lower:]')
+
+    if [[ " ${flags[@]} " =~ " -v " ]]; then
+      # -v: Inverted match: only print lines that do NOT match
+      if ! [[ $lower_line =~ $lower_regex ]]; then
+        if [[ " ${flags[@]} " =~ " -n " ]]; then
+          echo "${line_number}: $line"
+        else
+          echo "$line"
+        fi
+      fi
+
+    else
+      # Normal match
+      if [[ $lower_line =~ $lower_regex ]]; then
+        Starting_Half="${BASH_REMATCH[1]}"
+        Matching_Half="${BASH_REMATCH[2]}"
+        Ending_Half="${BASH_REMATCH[3]}"
+
+        if [[ " ${flags[@]} " =~ " -n " ]]; then
+          echo -e "${line_number}: ${Starting_Half}${RED}${Matching_Half}${ENDCOLOR}${Ending_Half}"
+        else
+          echo -e "${Starting_Half}${RED}${Matching_Half}${ENDCOLOR}${Ending_Half}"
+        fi
+      fi
+    fi
+
+  done < "$FILE"
+}
+
+Help_message="Help: This tool searches for a string in a file and highlights the matches.
+              Usage: $0 <search_string> [options_flags] <file_path>
+              Options:
+                -v        Inverted match
+                -n        Show line numbers
+                -nv, -vn      Inverted match with line numbers
+                --help  Show this help message
+              Examples:
+                $0 'search_string' -n file.txt
+                $0 'search_string' -v file.txt
+                $0 'search_string' -nv file.txt
+                $0 'search_string' -h file.txt
+                $0 'search_string' --help file.txt"
+
+
+
 Argument_mode=$#
+
+# Variable to hold the search string, Flags & File_path
 FILE="${!#}"
 search_string=""
 flags=()
+# Match Text Color
+RED="\e[31m"  
+ENDCOLOR="\e[0m"
 
+# ---------------------------------- Calling the functions ----------------------------------
+parse_args "$@"
 check_missing_args $Argument_mode
 check_file $FILE
-parse_args "$@"
 check_missing_search_string $search_string
+handle_flags "${flags[@]}"
 
+Regex="^(.*)($search_string)(.*)$"
 
+# mygrep_simple_search $Regex
 
+mygrep_flag_supported_search $Regex
 
-
-
-
-
-echo "Search string is $search_string"
-echo "Flags are ${flags[@]}"
-echo "File is $FILE"
-
-
-# mygrep_simple_search() {
-#   while IFS= read -r line; do
-#     if [[ $line =~ $Regex ]]; then
-#       Starting_Half="${BASH_REMATCH[1]}"
-#       Matching_Half="${BASH_REMATCH[2]}"
-#       Ending_Half="${BASH_REMATCH[3]}"
-#       echo -e "${Starting_Half} ${RED}$Matching_Half${ENDCOLOR}$Ending_Half"
-#     fi
-#   done < "$FILE"
-# }
-
-# pattern=$(( $# - 1 ))
-# echo "Pattern Argument is $pattern"
-# # Regex="^(.*)($pattern)(.*)$"
-# Regex="^(.*)($1)(.*)$"
-
-# RED="\e[31m"  
-# ENDCOLOR="\e[0m"
-
-# counter=0
-# echo "Argument: $arg ${counter}"
-# counter=$((counter + 1))
-
-
-
-
-
-
-# mygrep_simple_search
-
-# FILE=$3
-
-# if [ -f $FILE ]; then
-#    echo "File $FILE exists."
-# else
-#    echo "File $FILE does not exist."
-# fi
-
-
-# if [[ $String =~ ^$1 ]]; then
-#   echo "Matches!"
-# else
-#   echo "No match!"
-# fi
-# case ${3,,} in 
-#   -v)
-#     echo "Inverted match"
-#     ;;
-#   -n)
-#     echo "Line number"
-#     ;;
-#   -nv | -vn)
-#     echo "Inverted match with line number"
-#     ;;   
-#   -h)
-#     echo "Help"
-#     ;;
-
-#   *)
-#     echo "Invalid option"
-#     ;;
-# esac
-
-# Argu_1=$1
-# if [$Argu_1 -eq '-v' || '-n']; then
-#   Argu_2=$2
-# fi
-
-
-
-# mygrep_search() {
-#   local match_flag=false
-#   while IFS= read -r line; do
-#     match_flag=false
-#     if [[ $line =~ $Regex ]]; then
-#     match_flag=True
-#       # Starting_Half="${BASH_REMATCH[1]}"
-#       # Matching_Half="${BASH_REMATCH[2]}"
-#       # Ending_Half="${BASH_REMATCH[3]}"
-#       # echo -e "${Starting_Half} ${RED}$Matching_Half${ENDCOLOR}$Ending_Half"
-#     fi
-#     if [ match_flag = true ]; then
-#       echo " "
-#     else
-#       echo -e "$line"
-#     fi
-#     # echo "$line"
-#     # echo "$line"
-#   done < "$FILE"
-# }
-
-# mygrep_search
+# ---------------------------------- Debugging ----------------------------------
+# echo "Search string is $search_string"
+# echo "Flags are ${flags[@]}"
+# echo "File is $FILE"
+# echo "Regex is $Regex"
+# echo "Argument mode is $Argument_mode"
