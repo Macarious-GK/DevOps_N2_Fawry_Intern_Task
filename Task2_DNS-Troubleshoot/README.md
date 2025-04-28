@@ -74,6 +74,19 @@ sudo systemctl status apache2
 ![bypass DNS](../Images/task2_5.PNG)
 
 ### Using systemd-resolved (Ubuntu / Debian)
+```bash
+
+sudo mkdir -p /etc/systemd/resolved.conf.d
+sudo nano /etc/systemd/resolved.conf.d/dns_servers.conf
+
+# Add:
+[Resolve]
+DNS=10.0.0.2
+FallbackDNS=8.8.8.8
+
+# Restart systemd-resolved
+sudo systemctl restart systemd-resolved
+```
 
 ### Resourses
 - https://totaluptime.com/top-6-tools-for-dns-troubleshooting/
