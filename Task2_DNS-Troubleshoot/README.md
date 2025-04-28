@@ -23,23 +23,57 @@ dig @8.8.8.8 internal.example.com
 
 
 
+## Step 2
+### Diagnose Service Reachability:
+    1. Our web dashboard is a web server that run on IP and exposed on `port 80` if **HTTP** and port `443` if **HTTPS** 
+    2. So in this step we will try to make sure owr web server is responed the way it expected on these ports
+    3. we can use may tools for this task but my favorate is curl or ss
+    4. if we have access to the server we run ss and grep the ports
+    5. If our server is not the issue, we will continue moving our investigation forward.
+    6. If our server is the issue, we fix the config or notify the sysadmin
+### Commands needed
+``` bash
+# check the web server using curl 
+curl -v http://internal.example.com# 
+
+sudo ss -tuln | grep ':80\|:443'
+sudo systemctl status apache2
+
+```
+### Screenshots
+ **Diagnose Service Reachability** 
+![Diagnose Service Reachability](../Images/task2_3.PNG)
 
 
 
+## Step 3
+### Trace the Issue – List All Possible Causes:
+    1. Our web dashboard is a web server that run on IP and exposed on `port 80` if **HTTP** and port `443` if **HTTPS** 
+    2. So in this step we will try to make sure owr web server is responed the way it expected on these ports
+    3. we can use may tools for this task but my favorate is curl or ss
+    4. if we have access to the server we run ss and grep the ports
+    5. If our server is not the issue, we will continue moving our investigation forward.
+    6. If our server is the issue, we fix the config or notify the sysadmin
+### Commands needed
+``` bash
+# check the web server using curl 
+curl -v http://internal.example.com# 
+
+sudo ss -tuln | grep ':80\|:443'
+sudo systemctl status apache2
+
+```
+### Screenshots
+ **Diagnose Service Reachability** 
+![Diagnose Service Reachability](../Images/task2_3.PNG)
 
 
 
-## Screenshots
+### Bonus
+ **Configure a local /etc/hosts entry to bypass DNS for testing** 
+![bypass DNS](../Images/task2_5.PNG)
 
- **Screenshot_Basic_functions** 
-![Screenshot_Basic_functions](../Images/task2_1.PNG)
-
- **Screenshot_Basic_functions** 
-![Screenshot_Basic_functions](../Images/task2_2.PNG)
-
- **Screenshot_corner_cases** 
-![Screenshot_corner_cases](../Images/task2_3.PNG)
-
+### Using systemd-resolved (Ubuntu / Debian)
 
 ### Resourses
 - https://totaluptime.com/top-6-tools-for-dns-troubleshooting/
