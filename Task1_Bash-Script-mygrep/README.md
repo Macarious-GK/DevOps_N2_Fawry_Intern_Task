@@ -1,0 +1,13 @@
+### Task needed to be covered:
+- Create initial version of the script as a beginning to do the simplest funcition like `find the first match` from String or file
+- Update the script to `print the matching lines` from a text file 
+- Enhancing visablity by adding `different color for the matching` words in the lines 
+- Enable `Case sensitive` in my script
+- Hard Coded option: Adding the functionality of `Showing line numbers` for each match 
+- Hard Coded option: `Invert the match` (print lines that do not match)
+- Implement `Flag arguments`
+- Brain storming for corner cases
+- Implement error handling for corner cases
+- Optimize the Flags by `parsing using getopts`
+- Add the tool to the `/bin`
+- Finish `Readme Guide` for the tool
