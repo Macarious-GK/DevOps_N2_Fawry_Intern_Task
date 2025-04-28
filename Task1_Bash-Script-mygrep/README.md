@@ -56,7 +56,7 @@ Contains the help information that is displayed when using the `--help` flag.
 
 ## Screenshots
  **Screenshot_Basic_functions** 
-![Screenshot_Basic_functions](../Images/task1.PNG)
+![Screenshot_Basic_functions](../Images/task1_1.PNG)
 
  **Screenshot_Basic_functions** 
 ![Screenshot_Basic_functions](../Images/task1_2.PNG)
