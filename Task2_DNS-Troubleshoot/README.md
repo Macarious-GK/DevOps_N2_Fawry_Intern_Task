@@ -47,26 +47,18 @@ sudo systemctl status apache2
 
 
 ## Step 3
-### Trace the Issue – List All Possible Causes:
-    1. Our web dashboard is a web server that run on IP and exposed on `port 80` if **HTTP** and port `443` if **HTTPS** 
-    2. So in this step we will try to make sure owr web server is responed the way it expected on these ports
-    3. we can use may tools for this task but my favorate is curl or ss
-    4. if we have access to the server we run ss and grep the ports
-    5. If our server is not the issue, we will continue moving our investigation forward.
-    6. If our server is the issue, we fix the config or notify the sysadmin
-### Commands needed
-``` bash
-# check the web server using curl 
-curl -v http://internal.example.com# 
+### 3. 🧪 Trace the Issue – All Possible Causes
 
-sudo ss -tuln | grep ':80\|:443'
-sudo systemctl status apache2
-
-```
-### Screenshots
- **Diagnose Service Reachability** 
-![Diagnose Service Reachability](../Images/task2_3.PNG)
-
+| Potential Cause                  | Description                                         |
+|-----------------------------------|-----------------------------------------------------|
+| Misconfigured `/etc/resolv.conf`  | Incorrect DNS servers or missing internal DNS entries |
+| DNS Server Issue                  | Internal DNS server down or misconfigured            |
+| Firewall Rules                    | Blocking DNS (port 53), HTTP (port 80), or HTTPS (port 443) traffic |
+| Incorrect IP address in DNS       | DNS resolves to wrong IP or old IP                   |
+| Service down or misconfigured     | Nginx/Apache/Service not running properly            |
+| Host file misconfiguration        | `/etc/hosts` overrides DNS incorrectly               |
+| Network issues                    | Routing, VLAN, or internal firewall blocking access  |
+| SSL/TLS misconfiguration (HTTPS)  | Issues affecting port 443 connections                |
 
 
 ### Bonus
