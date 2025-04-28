@@ -21,7 +21,7 @@ run_test() {
 run_test "This tool expect 2 or more arguments" $MYGREP
 run_test "mygrep: No search string provided." $MYGREP "$TESTFILE"
 run_test "mygrep: test: No such file or directory" $MYGREP -v test
-run_test "Invalid option: -k" $MYGREP -k line "$TESTFILE"
+run_test "./mygrep.sh: illegal option -- k" $MYGREP -k line "$TESTFILE"
 run_test "mygrep: filenotexist.txt: No such file or directory" $MYGREP -v line filenotexist.txt
 run_test "1: Hello world
 2: This is a test

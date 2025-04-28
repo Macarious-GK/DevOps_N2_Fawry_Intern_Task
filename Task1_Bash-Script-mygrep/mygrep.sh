@@ -45,7 +45,7 @@ parse_args() {
     fi
   done
 }
-
+# Function to handle flags
 handle_flags() {
   local new_flags=()
 
@@ -74,8 +74,34 @@ handle_flags() {
   # Update the global flags array
   flags=("${new_flags[@]}")
 }
+# Function to handle flags using getopts
+handle_flags_with_getopts() {
+  # Initialize new_flags array to store options
+  local new_flags=()
 
+  # Process flags
+  while getopts "vnh" flag; do
+    case $flag in
+      v)
+        new_flags+=("-v")
+        ;;
+      n)
+        new_flags+=("-n")
+        ;;
+      h)
+        echo "$Help_message"
+        exit 0
+        ;;
+      *)
+        echo "Invalid option: -$OPTARG"
+        exit 1
+        ;;
+    esac
+  done
 
+  flags=("${new_flags[@]}")
+}
+# Function to perform a simple search
 mygrep_simple_search() {
   local Regex=$1
   while IFS= read -r line; do
@@ -89,7 +115,7 @@ mygrep_simple_search() {
     fi
   done < "$FILE"
 }
-
+# Function to perform a search with flags
 mygrep_flag_supported_search() {
   local line_number=0
   local Regex=$1
@@ -158,7 +184,7 @@ parse_args "$@"
 check_missing_args $Argument_mode
 check_file $FILE
 check_missing_search_string $search_string
-handle_flags "${flags[@]}"
+handle_flags_with_getopts "${flags[@]}"
 
 Regex="^(.*)($search_string)(.*)$"
 
