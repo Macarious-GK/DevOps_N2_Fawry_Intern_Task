@@ -52,7 +52,8 @@ Contains the help information that is displayed when using the `--help` flag.
 ## For testing
 ``` bash
  ./test_mygrep.sh
-```
+``` 
+
 ## Screenshots
  **Screenshot_Basic_functions** 
 ![Screenshot_Basic_functions](../Images/task1.PNG)
